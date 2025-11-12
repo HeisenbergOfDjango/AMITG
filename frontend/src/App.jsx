@@ -111,6 +111,9 @@ function App() {
   const [error, setError] = useState(null)
   const [file, setFile] = useState(null)
 
+  // Get API URL from environment variable, fallback to localhost for development
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
   const handleAnalyze = async () => {
     if (!code.trim()) {
       setError('Please enter code to analyze')
@@ -121,7 +124,7 @@ function App() {
     setError(null)
 
     try {
-      const response = await axios.post('http://localhost:8000/analyze', {
+      const response = await axios.post(`${API_URL}/analyze`, {
         code
       })
       setResults(response.data.review)
@@ -164,7 +167,7 @@ function App() {
       const formData = new FormData()
       formData.append('file', file)
 
-      const response = await axios.post('http://localhost:8000/upload-analyze', formData)
+      const response = await axios.post(`${API_URL}/upload-analyze`, formData)
       setResults(response.data.review)
     } catch (err) {
       setError(err.response?.data?.detail || 'An error occurred during analysis')

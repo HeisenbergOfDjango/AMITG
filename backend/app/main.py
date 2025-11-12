@@ -21,9 +21,12 @@ genai.configure(api_key=api_key)
 app = FastAPI(title="AMITG API", description="AI-powered Machine for Intelligent Testing & Guidance")
 
 # Add CORS middleware
+# Get allowed origins from environment variable, default to "*" for development
+cors_origins_env = os.getenv("CORS_ORIGINS", "*")
+allowed_origins = ["*"] if cors_origins_env == "*" else [origin.strip() for origin in cors_origins_env.split(",")]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

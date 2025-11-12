@@ -1,98 +1,170 @@
-# Deployment Guide for AMITG
+# Render.com Deployment Guide
 
-This guide explains how to deploy AMITG on Render.com for free with a keep-alive mechanism to prevent the service from going down due to inactivity.
+This guide will walk you through deploying the AMITG application on Render.com's free tier.
 
-## Backend Deployment on Render
+## Prerequisites
 
-1. Sign up for a free account at [render.com](https://render.com)
+- A GitHub account
+- A Render.com account (sign up at https://render.com)
+- Your Gemini API key
 
-2. Create a new Web Service:
-   - Click "New" > "Web Service"
-   - Connect your GitHub repository or upload your code directly
-   - Select the branch to deploy
+## Step 1: Push Your Code to GitHub
 
-3. Configure the Web Service:
-   - **Name**: `amitg-backend` (or your preferred name)
-   - **Root Directory**: Leave empty if your repo root is the project root
-   - **Environment**: Python 3
+1. If you haven't already, initialize a git repository:
+   ```bash
+   git init
+   git add .
+   git commit -m "Prepare for Render deployment"
+   ```
+
+2. Create a new repository on GitHub (if you don't have one)
+
+3. Push your code to GitHub:
+   ```bash
+   git remote add origin <your-github-repo-url>
+   git branch -M main
+   git push -u origin main
+   ```
+
+## Step 2: Deploy Backend Service
+
+1. **Log in to Render.com** and go to your Dashboard
+
+2. **Create a New Web Service**:
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
+   - Select the repository containing your code
+
+3. **Configure Backend Service**:
+   - **Name**: `amitg-backend` (or any name you prefer)
+   - **Environment**: `Python 3`
    - **Build Command**: `pip install -r backend/requirements.txt`
    - **Start Command**: `cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - **Root Directory**: Leave empty (or set to root if needed)
 
-4. Add Environment Variables:
-   - Click "Environment" > "Add Environment Variable"
-   - Add the following:
-     ```
-     OPENAI_API_KEY=your_openai_api_key_here
-     GEMINI_API_KEY=your_gemini_api_key_here
-     BACKEND_URL=https://your-backend-url.onrender.com
-     FRONTEND_URL=https://your-frontend-url.onrender.com
-     ```
+4. **Set Environment Variables**:
+   Click on "Environment" tab and add:
+   - `GEMINI_API_KEY`: Your Gemini API key
+   - `CORS_ORIGINS`: Leave this empty for now (we'll set it after frontend is deployed)
+   - `PYTHON_VERSION`: `3.11.0` (optional, but recommended)
 
-5. Advanced Settings:
-   - Under "Advanced" settings, add a background worker:
-   - Click "Add Background Worker"
-   - **Start Command**: `cd backend && python keep_alive.py`
-   - This will run the keep-alive script in the background
+5. **Select Free Plan**:
+   - Choose "Free" plan
+   - Click "Create Web Service"
 
-6. Click "Create Web Service"
+6. **Wait for Deployment**:
+   - Render will build and deploy your backend
+   - Note the URL (e.g., `https://amitg-backend.onrender.com`)
+   - The backend will be available at this URL
 
-## Frontend Deployment on Render
+## Step 3: Deploy Frontend Service
 
-1. Create a new Static Site:
-   - Click "New" > "Static Site"
-   - Connect your GitHub repository or upload your code directly
+1. **Create a New Static Site**:
+   - Click "New +" → "Static Site"
+   - Connect the same GitHub repository
 
-2. Configure the Static Site:
-   - **Name**: `amitg-frontend` (or your preferred name)
-   - **Root Directory**: Leave empty if your repo root is the project root
+2. **Configure Frontend Service**:
+   - **Name**: `amitg-frontend` (or any name you prefer)
    - **Build Command**: `cd frontend && npm install && npm run build`
    - **Publish Directory**: `frontend/dist`
 
-3. Environment Variables:
-   - Add the following environment variable:
-   - `VITE_API_URL=https://your-backend-url.onrender.com`
+3. **Set Environment Variables**:
+   Click on "Environment" tab and add:
+   - `VITE_API_URL`: Your backend URL from Step 2 (e.g., `https://amitg-backend.onrender.com`)
+   - **Important**: Make sure there's no trailing slash
 
-4. Click "Create Static Site"
+4. **Select Free Plan**:
+   - Choose "Free" plan
+   - Click "Create Static Site"
 
-## Update Frontend API URL
+5. **Wait for Deployment**:
+   - Render will build and deploy your frontend
+   - Note the frontend URL (e.g., `https://amitg-frontend.onrender.com`)
 
-Before deploying, update the API URL in your frontend code to point to your Render backend URL:
+## Step 4: Update CORS Settings
 
-1. Create a `.env` file in your frontend directory:
+1. **Go back to your Backend Service** in Render dashboard
 
-```
-VITE_API_URL=https://your-backend-url.onrender.com
-```
+2. **Update Environment Variables**:
+   - Find `CORS_ORIGINS`
+   - Set it to your frontend URL (e.g., `https://amitg-frontend.onrender.com`)
+   - If you have multiple origins, separate them with commas: `https://frontend1.onrender.com,https://frontend2.onrender.com`
 
-2. Update your API calls in the frontend code to use this environment variable:
+3. **Redeploy the Backend**:
+   - Click "Manual Deploy" → "Deploy latest commit"
+   - This will restart the backend with the new CORS settings
 
-```javascript
-// Example in a component that makes API calls
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const response = await axios.post(`${apiUrl}/analyze`, { code });
-```
+## Step 5: Verify Deployment
 
-## Keep-Alive Mechanism
+1. **Test Backend**:
+   - Visit `https://your-backend-url.onrender.com/ping`
+   - You should see: `{"status": "alive", "message": "Server is running"}`
 
-The project includes a keep-alive mechanism that pings both the backend and frontend every 2 minutes to prevent them from going inactive on Render's free tier:
+2. **Test Frontend**:
+   - Visit your frontend URL
+   - Try analyzing some code
+   - It should connect to the backend successfully
 
-1. Backend has a `/ping` endpoint that returns a simple status message
-2. `keep_alive.py` script pings both services at regular intervals
-3. The script runs as a background worker on Render
+## Important Notes
 
-## Verifying Deployment
+### Free Tier Limitations
 
-1. Visit your backend URL (e.g., `https://amitg-backend.onrender.com/ping`)
-   - You should see: `{"status":"alive","message":"Server is running"}`
+- **Spinning Down**: Free services spin down after 15 minutes of inactivity. The first request after spin-down may take 30-60 seconds.
+- **Build Time**: Free tier has limited build minutes per month
+- **Bandwidth**: Free tier has limited bandwidth
 
-2. Visit your frontend URL (e.g., `https://amitg-frontend.onrender.com`)
-   - You should see the AMITG web interface
+### Keeping Services Alive (Optional)
 
-3. Check the logs in Render to verify the keep-alive script is running properly
+If you want to keep your backend from spinning down, you can:
+1. Use a service like UptimeRobot to ping your backend every 10-14 minutes
+2. Set up a cron job (if you have a paid service)
+3. Use the `/ping` endpoint for health checks
 
-## Troubleshooting
+### Troubleshooting
 
-- If the backend fails to start, check the logs in Render for errors
-- Verify your API keys are correctly set in the environment variables
-- If the keep-alive script isn't working, check if the background worker is running
-- For frontend issues, verify the API URL is correctly set in the environment variables
+**Backend not starting:**
+- Check the logs in Render dashboard
+- Verify all environment variables are set correctly
+- Ensure `GEMINI_API_KEY` is valid
+
+**Frontend can't connect to backend:**
+- Verify `VITE_API_URL` is set correctly in frontend environment variables
+- Check that `CORS_ORIGINS` in backend includes your frontend URL
+- Make sure backend is deployed and running
+
+**Build failures:**
+- Check that all dependencies are in `requirements.txt` (backend) or `package.json` (frontend)
+- Verify Python/Node versions are compatible
+- Check build logs for specific error messages
+
+## Alternative: Using render.yaml (Blueprints)
+
+If you prefer, you can use the `render.yaml` file for automated setup:
+
+1. **Push render.yaml to your repository** (already done)
+
+2. **In Render Dashboard**:
+   - Click "New +" → "Blueprint"
+   - Connect your GitHub repository
+   - Render will automatically detect `render.yaml` and create both services
+
+3. **Configure Environment Variables**:
+   - You'll still need to set `GEMINI_API_KEY` manually
+   - Set `VITE_API_URL` after backend is deployed
+   - Set `CORS_ORIGINS` after frontend is deployed
+
+## Next Steps
+
+- Set up a custom domain (optional, requires paid plan)
+- Configure automatic deployments from GitHub
+- Set up monitoring and alerts
+- Consider upgrading to paid plan for better performance
+
+## Support
+
+If you encounter issues:
+1. Check Render's documentation: https://render.com/docs
+2. Check application logs in Render dashboard
+3. Verify all environment variables are set correctly
+4. Ensure your code is pushed to GitHub
+

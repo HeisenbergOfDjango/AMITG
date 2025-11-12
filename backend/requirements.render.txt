@@ -1,3 +1,0 @@
-# This file intentionally left empty
-# All packages are installed directly in the render_setup.sh script
-# to avoid Rust compilation issues
