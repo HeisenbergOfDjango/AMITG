@@ -145,15 +145,15 @@ def create_analysis_prompt(code: str) -> str:
     Create a prompt for AI code analysis
     """
     return f"""
-    Review the following code and provide:
+    Review the following code and provide a comprehensive analysis. Structure your response with clear section headings (use markdown headers like ## Summary, ## Edge Cases, etc.) and provide:
     
-    1. A summary of what this code does
-    2. Edge cases that might break it
-    3. Suggested test cases
-    4. Feedback on code quality
-    5. Line-by-line reviewer comments
+    - A summary of what this code does
+    - Edge cases that might break it
+    - Suggested test cases
+    - Feedback on code quality
+    - Line-by-line reviewer comments
     
-    Format your response with clear section headings.
+    Do not include numbered lists or instruction text in your response. Only provide the actual analysis content with clear section headings.
     
     CODE:
     ```
