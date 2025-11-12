@@ -117,11 +117,10 @@ services:
         sync: false
   
   # Frontend static site
-  - type: web
+  - type: static_site
     name: amitg-frontend
-    env: static
     buildCommand: cd frontend && npm install && npm run build
-    staticPublishDir: frontend/dist
+    publishDir: frontend/dist
 ```
 
 3. **Deploy using the Docker approach**

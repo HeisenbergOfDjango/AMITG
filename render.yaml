@@ -27,11 +27,10 @@ services:
         value: https://amitg-frontend.onrender.com
 
   # Frontend static site
-  - type: web
+  - type: static_site
     name: amitg-frontend
-    env: static
     buildCommand: cd frontend && npm install && npm run build
-    staticPublishDir: frontend/dist
+    publishDir: frontend/dist
     envVars:
       - key: NODE_VERSION
         value: 18.0.0
