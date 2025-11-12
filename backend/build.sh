@@ -7,16 +7,11 @@ set -e
 # Print commands
 set -x
 
-# Install Python dependencies with binary preference
-pip install --upgrade pip
+# Make direct_install.sh executable
+chmod +x direct_install.sh
 
-# Use the Render-specific requirements file
-if [ -f "requirements-render.txt" ]; then
-  echo "Using Render-specific requirements file"
-  pip install --prefer-binary -r requirements-render.txt
-else
-  echo "Using standard requirements file"
-  pip install --prefer-binary -r requirements.txt
-fi
+# Run the direct installation script
+echo "Running direct installation script"
+./direct_install.sh
 
 echo "Build completed successfully"

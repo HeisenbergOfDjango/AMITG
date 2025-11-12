@@ -23,9 +23,8 @@ Render Blueprints allow you to define all your services in a single YAML file, m
    - After the initial deployment, you'll need to set your API keys
    - Go to each service in the Render dashboard
    - Click "Environment" > "Add Secret"
-   - Add your API keys:
+   - Add your API key:
      ```
-     OPENAI_API_KEY=your_openai_api_key_here
      GEMINI_API_KEY=your_gemini_api_key_here
      ```
 
@@ -53,9 +52,8 @@ If you prefer to deploy each service individually or if the Blueprint approach d
 
 3. **Environment Variables**:
    - Add Python version: `PYTHON_VERSION` = `3.11.0`
-   - Add your API keys:
+   - Add your API key:
      ```
-     OPENAI_API_KEY=your_openai_api_key_here
      GEMINI_API_KEY=your_gemini_api_key_here
      ```
 
