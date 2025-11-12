@@ -1,0 +1,40 @@
+services:
+  # Backend API service
+  - type: web
+    name: amitg-backend
+    env: python
+    buildCommand: cd backend && chmod +x build.sh && ./build.sh
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+
+  # Keep-alive worker
+  - type: worker
+    name: amitg-keep-alive
+    env: python
+    buildCommand: cd backend && chmod +x build.sh && ./build.sh
+    startCommand: cd backend && python keep_alive.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: BACKEND_URL
+        value: https://amitg-backend.onrender.com
+      - key: FRONTEND_URL
+        value: https://amitg-frontend.onrender.com
+
+  # Frontend static site
+  - type: static
+    name: amitg-frontend
+    env: node
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: NODE_VERSION
+        value: 18.0.0
+      - key: VITE_API_URL
+        value: https://amitg-backend.onrender.com
