@@ -1,0 +1,14 @@
+/* Base styles - will be mostly handled by Material UI */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f5f5;
+}
+
+/* Monaco editor overrides */
+.monaco-editor .margin {
+  background-color: #f5f5f5;
+}
