@@ -115,6 +115,13 @@ services:
     envVars:
       - key: GEMINI_API_KEY
         sync: false
+  
+  # Frontend static site
+  - type: web
+    name: amitg-frontend
+    env: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishDir: frontend/dist
 ```
 
 3. **Deploy using the Docker approach**
