@@ -38,9 +38,10 @@ This guide will walk you through deploying the AMITG application on Render.com's
 3. **Configure Backend Service**:
    - **Name**: `amitg-backend` (or any name you prefer)
    - **Environment**: `Python 3`
-   - **Build Command**: `pip install -r backend/requirements.txt`
+   - **Build Command**: `pip install --upgrade pip && pip install -r backend/requirements.txt`
    - **Start Command**: `cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
    - **Root Directory**: Leave empty (or set to root if needed)
+   - **Python Version**: Render will automatically use Python 3.11.9 from `backend/runtime.txt`
 
 4. **Set Environment Variables**:
    Click on "Environment" tab and add:
@@ -126,6 +127,14 @@ If you want to keep your backend from spinning down, you can:
 - Check the logs in Render dashboard
 - Verify all environment variables are set correctly
 - Ensure `GEMINI_API_KEY` is valid
+
+**Build errors with pydantic/pydantic-core:**
+- The requirements.txt has been updated to use versions with pre-built wheels (pydantic 2.5.3)
+- Ensure Python 3.11 is being used (check `backend/runtime.txt`)
+- If you still see Rust compilation errors:
+  1. Try using Python 3.11 explicitly in Render's environment settings
+  2. As a fallback, use `backend/requirements-fallback.txt` which uses pydantic 1.x (no Rust required)
+  3. Change the build command to: `pip install --upgrade pip && pip install -r backend/requirements-fallback.txt`
 
 **Frontend can't connect to backend:**
 - Verify `VITE_API_URL` is set correctly in frontend environment variables
