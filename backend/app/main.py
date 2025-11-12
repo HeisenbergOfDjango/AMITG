@@ -5,6 +5,9 @@ from typing import Optional
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
+import asyncio
+import httpx
+from contextlib import asynccontextmanager
 
 # Load environment variables
 load_dotenv()
@@ -18,7 +21,46 @@ if not api_key:
 print(f"Configuring Gemini with API key: {api_key[:5]}...")
 genai.configure(api_key=api_key)
 
-app = FastAPI(title="AMITG API", description="AI-powered Machine for Intelligent Testing & Guidance")
+# Keep-alive function that calls itself every 50 seconds
+async def keep_alive():
+    """
+    Function that pings the server every 50 seconds to keep it alive
+    """
+    # Get the server URL from environment variable or use default
+    server_url = os.getenv("SERVER_URL", "http://localhost:8000")
+    
+    while True:
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f"{server_url}/ping", timeout=10.0)
+                print(f"Keep-alive ping successful: {response.status_code}")
+        except Exception as e:
+            print(f"Keep-alive ping failed: {str(e)}")
+        
+        # Wait 50 seconds before next ping
+        await asyncio.sleep(50)
+
+# Background task to run keep-alive
+async def start_keep_alive():
+    """
+    Start the keep-alive background task
+    """
+    print("Starting keep-alive service...")
+    asyncio.create_task(keep_alive())
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Start keep-alive
+    await start_keep_alive()
+    yield
+    # Shutdown: Clean up if needed
+    pass
+
+app = FastAPI(
+    title="AMITG API", 
+    description="AI-powered Machine for Intelligent Testing & Guidance",
+    lifespan=lifespan
+)
 
 # Add CORS middleware
 # Get allowed origins from environment variable, default to "*" for development
