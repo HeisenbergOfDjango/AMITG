@@ -3,7 +3,7 @@ services:
   - type: web
     name: amitg-backend
     env: python
-    buildCommand: cd backend && chmod +x build.sh && ./build.sh
+    buildCommand: cd backend && chmod +x render_setup.sh && ./render_setup.sh
     startCommand: cd backend && chmod +x start.sh && ./start.sh
     envVars:
       - key: PYTHON_VERSION
@@ -16,7 +16,7 @@ services:
   - type: worker
     name: amitg-keep-alive
     env: python
-    buildCommand: cd backend && chmod +x build.sh && ./build.sh
+    buildCommand: cd backend && chmod +x render_setup.sh && ./render_setup.sh
     startCommand: cd backend && chmod +x start_worker.sh && ./start_worker.sh
     envVars:
       - key: PYTHON_VERSION
