@@ -66,7 +66,7 @@ This guide will walk you through deploying the AMITG application on Render.com's
 
 2. **Configure Frontend Service**:
    - **Name**: `amitg-frontend` (or any name you prefer)
-   - **Build Command**: `cd frontend && npm install && npm run build`
+   - **Build Command**: `cd frontend && npm install --legacy-peer-deps && npm run build`
    - **Publish Directory**: `frontend/dist`
 
 3. **Set Environment Variables**:
@@ -145,6 +145,11 @@ If you want to keep your backend from spinning down, you can:
 - Check that all dependencies are in `requirements.txt` (backend) or `package.json` (frontend)
 - Verify Python/Node versions are compatible
 - Check build logs for specific error messages
+
+**Frontend npm peer dependency errors:**
+- The build command includes `--legacy-peer-deps` to handle version conflicts
+- If you see ERESOLVE errors, ensure your build command is: `cd frontend && npm install --legacy-peer-deps && npm run build`
+- The `monaco-editor` version has been set to `^0.44.0` to match `react-monaco-editor` requirements
 
 ## Alternative: Using render.yaml (Blueprints)
 
